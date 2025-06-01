@@ -2,11 +2,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from joblib import load
 import pandas as pd
+import os
 
 app = Flask(__name__)
 CORS(app)  # ✅ enable CORS
 
-model = load("logistic_pipeline.pkl")
+# Use absolute path relative to this file for model loading
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "logistic_pipeline.pkl")
+model = load(MODEL_PATH)
+
 times = [10, 15, 20, 25]
 
 @app.route('/predict', methods=['POST'])
