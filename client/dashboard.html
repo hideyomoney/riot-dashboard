@@ -21,18 +21,11 @@
 
       // Load dashboard.html
       fetch("partials/dashboard.html")
-        .then((r) => r.text())
-        .then((html) => {
-          document.getElementById("dashboard").innerHTML = html;
-
-          // 3) As soon as dashboard is in the DOM, load predict.html into that placeholder
-          return fetch("partials/predict.html");
-        })
-        .then((r) => r.text())
-        .then((html) => {
-          document.getElementById("predictPanel").innerHTML = html;
-        })
-        .catch((err) => console.error("Error loading partials:", err));
+  .then((r) => r.text())
+  .then((html) => {
+    document.getElementById("dashboard").innerHTML = html;
+  })
+  .catch((err) => console.error("Error loading dashboard partial:", err));
     </script>
     <script src="js/main.js" defer></script>
   </body>

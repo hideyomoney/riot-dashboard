@@ -143,6 +143,13 @@ input {
 body.show-stats #infographicPanel {
   display: block;
 }
+#rankInfo {
+  display: none;
+}
+body.show-stats #rankInfo {
+  display: block;
+}
+
 
 .home-container {
   display: flex;

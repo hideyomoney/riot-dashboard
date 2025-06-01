@@ -8,7 +8,6 @@ function getChampImgName(name) {
     FiddleSticks: "Fiddlesticks",
     Wukong: "MonkeyKing",
     NunuWillump: "Nunu",
-    Renata: "RenataGlasc",
     Belveth: "Belveth",
     Kaisa: "Kaisa",
     Kogmaw: "KogMaw",
@@ -80,7 +79,7 @@ async function getWinProbability(position, champA, champB) {
   const result = await res.json();
   return result.probability;
 }
-console.log("✅ Script loaded");
+
 async function predictMatchup() {
   console.log("🔍 Button clicked");
   const position = document.getElementById("position").value;
@@ -215,7 +214,7 @@ async function fetchMatchStats() {
     const itemImgs = items
       .map((id) =>
         id
-          ? `<img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png" alt="Item">`
+          ? `<img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png" crossorigin="anonymous" alt="Item">`
           : `<div class="empty-slot"></div>`
       )
       .join("");
@@ -244,15 +243,15 @@ async function fetchMatchStats() {
     </div>
     <div class="summary-row" style="align-items: center;">
   <div style="display: flex; align-items: center;">
-    <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${champImgName}.png" alt="${champ}" style="width: 44px; height: 44px; margin-right: 8px; border-radius: 4px;">
+    <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${champImgName}.png" crossorigin="anonymous" alt="${champ}" style="width: 44px; height: 44px; margin-right: 8px; border-radius: 4px;">
     <div style="display: flex; flex-direction: column;">
       <div style="display: flex; gap: 4px;">
-        <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell1Name}.png" style="width: 22px; height: 22px;" />
-        <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell2Name}.png" style="width: 22px; height: 22px;" />
+        <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell1Name}.png" crossorigin="anonymous" style="width: 22px; height: 22px;" />
+        <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell2Name}.png" crossorigin="anonymous" style="width: 22px; height: 22px;" />
       </div>
       <div style="display: flex; gap: 4px; margin-top: 2px;">
-          <img src="${primaryRuneUrl}" style="width: 22px; height: 22px;" />
-  <img src="${secondaryRuneUrl}" style="width: 22px; height: 22px;" />
+          <img src="${primaryRuneUrl}" crossorigin="anonymous" style="width: 22px; height: 22px;" />
+  <img src="${secondaryRuneUrl}" crossorigin="anonymous" style="width: 22px; height: 22px;" />
 
       </div>
     </div>
@@ -282,7 +281,7 @@ async function fetchMatchStats() {
           <tr>
             <td><img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${getChampImgName(
               p.championName
-            )}.png"> ${p.summonerName}</td>
+            )}.png" crossorigin="anonymous"> ${p.summonerName}</td>
             <td>${p.kills}/${p.deaths}/${p.assists} (${(p.deaths === 0
                 ? p.kills + p.assists
                 : (p.kills + p.assists) / p.deaths
@@ -313,7 +312,7 @@ async function fetchMatchStats() {
             ]
               .map((id) =>
                 id
-                  ? `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\">`
+                  ? `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\" crossorigin="anonymous">`
                   : `<div class=\"empty-slot\"></div>`
               )
               .join("")}</td>
@@ -334,7 +333,7 @@ async function fetchMatchStats() {
           <tr>
             <td><img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${getChampImgName(
               p.championName
-            )}.png"> ${p.summonerName}</td>
+            )}.png" crossorigin="anonymous" > ${p.summonerName}</td>
             <td>${p.kills}/${p.deaths}/${p.assists} (${(p.deaths === 0
                 ? p.kills + p.assists
                 : (p.kills + p.assists) / p.deaths
@@ -365,7 +364,7 @@ async function fetchMatchStats() {
             ]
               .map((id) =>
                 id
-                  ? `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\">`
+                  ? `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\" crossorigin="anonymous" >`
                   : `<div class=\"empty-slot\"></div>`
               )
               .join("")}</td>
@@ -488,19 +487,13 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch((err) => console.error("Error loading header.html:", err));
 
   // Load dashboard.html
-  fetch("partials/dashboard.html")
-    .then((r) => r.text())
-    .then((html) => {
-      document.getElementById("dashboard").innerHTML = html;
+fetch("partials/dashboard.html")
+  .then((r) => r.text())
+  .then((html) => {
+    document.getElementById("dashboard").innerHTML = html;
+  })
+  .catch((err) => console.error("Error loading dashboard partial:", err));
 
-      // As soon as dashboard is in the DOM, load predict.html into that placeholder
-      return fetch("partials/predict.html");
-    })
-    .then((r) => r.text())
-    .then((html) => {
-      document.getElementById("predictPanel").innerHTML = html;
-    })
-    .catch((err) => console.error("Error loading partials:", err));
 
   // Show total stats after search
   document.body.addEventListener("click", function (e) {
