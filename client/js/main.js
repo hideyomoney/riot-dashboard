@@ -110,6 +110,32 @@ async function fetchMatchStats() {
   const summoner = await res1.json();
   const puuid = summoner.puuid;
 
+  // 🆕 Fetch encryptedSummonerId from backend
+  let encryptedSummonerId = null;
+  try {
+    const idRes = await fetch(`http://localhost:3000/api/summoner-id/${puuid}`);
+    if (idRes.ok) {
+      const idData = await idRes.json();
+      encryptedSummonerId = idData.id;
+    }
+  } catch (e) {
+    encryptedSummonerId = null;
+  }
+
+  // 🆕 Fetch ranked info and display it (with error handling)
+  let rankedData = [];
+  if (encryptedSummonerId) {
+    try {
+      const rankedRes = await fetch(`http://localhost:3000/api/ranked/${encryptedSummonerId}`);
+      if (rankedRes.ok) {
+        rankedData = await rankedRes.json();
+      }
+    } catch (e) {
+      rankedData = [];
+    }
+  }
+  displayRankedInfo(rankedData);
+
   // ✅ Get filters from the user
   const mode = document.getElementById("gameModeSelect").value;
   const count = document.getElementById("gameCount").value || 10;
@@ -440,6 +466,38 @@ async function fetchMatchStats() {
     "stat-kdaratio"
   ).textContent = `KDA Ratio: ${kdaRatioTotal}`;
 }
+// 🆕 Display ranked info in the dashboard
+function displayRankedInfo(ranks) {
+  const rankDiv = document.getElementById("rankInfo");
+  rankDiv.innerHTML = "<h3>Ranked Info</h3>";
+
+  if (!Array.isArray(ranks) || ranks.length === 0) {
+    rankDiv.innerHTML += "<p>Unranked in all queues.</p>";
+    return;
+  }
+
+  for (const entry of ranks) {
+    const { queueType, tier, rank, leaguePoints, wins, losses } = entry;
+    const winrate = ((wins / (wins + losses)) * 100).toFixed(1);
+    const label = queueType
+      .replace("RANKED_SOLO_5x5", "Ranked Solo")
+      .replace("RANKED_FLEX_SR", "Flex 5v5");
+
+    const iconTier = tier.toLowerCase();
+    const emblemSrc = `assets/emblems/${iconTier}.png`;
+
+    rankDiv.innerHTML += `
+      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 18px;">
+        <img src="${emblemSrc}" alt="${tier} Emblem" style="width: 64px; height: 64px;" />
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="font-weight: bold; font-size: 1.1em;">${label}</div>
+          <div style="font-size: 1em;">${tier} ${rank} ${leaguePoints} LP</div>
+          <div style="font-size: 0.97em; color: #60a5fa;">${wins}W / ${losses}L (${winrate}%)</div>
+        </div>
+      </div>
+    `;
+  }
+}
 document.addEventListener('DOMContentLoaded', () => {
   // Attach Matchup Info button handler after header is loaded
   const headerInterval = setInterval(() => {
@@ -480,20 +538,25 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Load header.html
-  fetch("partials/header.html")
-    .then((r) => r.text())
-    .then((html) => (document.getElementById("header").innerHTML = html))
-    .catch((err) => console.error("Error loading header.html:", err));
+  const headerTarget = document.getElementById("header");
+  if (headerTarget) {
+    fetch("partials/header.html")
+      .then((r) => r.text())
+      .then((html) => {
+        headerTarget.innerHTML = html;
+      })
+      .catch((err) => console.error("Error loading header.html:", err));
+  }
 
-  // Load dashboard.html
-fetch("partials/dashboard.html")
-  .then((r) => r.text())
-  .then((html) => {
-    document.getElementById("dashboard").innerHTML = html;
-  })
-  .catch((err) => console.error("Error loading dashboard partial:", err));
-
+  const dashboardTarget = document.getElementById("dashboard");
+  if (dashboardTarget) {
+    fetch("partials/dashboard.html")
+      .then((r) => r.text())
+      .then((html) => {
+        dashboardTarget.innerHTML = html;
+      })
+      .catch((err) => console.error("Error loading dashboard partial:", err));
+  }
 
   // Show total stats after search
   document.body.addEventListener("click", function (e) {

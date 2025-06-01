@@ -153,6 +153,41 @@ app.get('/api/match/:matchId', async (req, res) => {
 });
 
 
+// 🆕 Route: Get Summoner-v4 info (to get encryptedSummonerId from puuid)
+app.get('/api/summoner-id/:puuid', async (req, res) => {
+  const { puuid } = req.params;
+  try {
+    const response = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`, {
+      headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
+    });
+    const data = await response.json();
+    res.json(data); // contains .id = encryptedSummonerId
+  } catch (err) {
+    console.error("❌ Summoner ID fetch error:", err.message);
+    res.status(500).json({ error: 'Failed to fetch summoner ID' });
+  }
+});
+
+// 🆕 Route: Get ranked info for a summoner by encryptedSummonerId
+app.get('/api/ranked/:encryptedSummonerId', async (req, res) => {
+  const { encryptedSummonerId } = req.params;
+  try {
+    // NA region for this dashboard
+    const url = `https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/${encryptedSummonerId}`;
+    const response = await fetch(url, {
+      headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
+    });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch ranked data' });
+    }
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('❌ Ranked fetch error:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 // connect to MongoDB, then start Express
 async function startServer() {
