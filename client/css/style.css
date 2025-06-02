@@ -181,7 +181,9 @@ body.show-stats #rankInfo {
   color: #000;
 }
 
-.search-box button {
+.search-box button,
+#searchBtn,
+#matchupInfoBtn {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   border: none;
@@ -191,7 +193,9 @@ body.show-stats #rankInfo {
   cursor: pointer;
 }
 
-.search-box button:hover {
+.search-box button:hover,
+#searchBtn:hover,
+#matchupInfoBtn:hover {
   background-color: #2563eb;
 }
 

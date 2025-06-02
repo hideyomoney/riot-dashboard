@@ -15,8 +15,8 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-const clientPath = path.join(__dirname, '..', 'client');
-app.use(express.static(clientPath));
+// Serve everything under /client as static
+app.use(express.static(path.join(__dirname, '..', 'client')));
 const { MongoClient } = require('mongodb');
 
 const uri = process.env.MONGO_URI; // Store your MongoDB URI in .env

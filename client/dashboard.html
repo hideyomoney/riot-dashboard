@@ -12,21 +12,7 @@
 
     <div id="dashboard"></div>
 
-    <script>
-      // Load header.html
-      fetch("partials/header.html")
-        .then((r) => r.text())
-        .then((html) => (document.getElementById("header").innerHTML = html))
-        .catch((err) => console.error("Error loading header.html:", err));
-
-      // Load dashboard.html
-      fetch("partials/dashboard.html")
-  .then((r) => r.text())
-  .then((html) => {
-    document.getElementById("dashboard").innerHTML = html;
-  })
-  .catch((err) => console.error("Error loading dashboard partial:", err));
-    </script>
+    
     <script src="js/main.js" defer></script>
   </body>
 </html>

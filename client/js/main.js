@@ -138,7 +138,7 @@ async function fetchMatchStats() {
 
   // ✅ Get filters from the user
   const mode = document.getElementById("gameModeSelect").value;
-  const count = document.getElementById("gameCount").value || 10;
+  const count = document.getElementById("gameCount").value || 20;
 
   // ✅ Request filtered matches from backend
   const res2 = await fetch(
@@ -509,6 +509,40 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(headerInterval);
     }
   }, 100);
+
+  // ─── 1) Populate champion dropdowns ──────────────────────────────────
+  const selectA = document.getElementById("championA");
+  const selectB = document.getElementById("championB");
+
+  // Only run the fetch/populate step if both selects exist on this page
+  if (selectA && selectB) {
+    fetch("/assets/champions/champions.json")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load champions.json (status ${response.status})`);
+        }
+        return response.json();
+      })
+      .then(championList => {
+        // championList is an Array of strings
+        championList.forEach(champName => {
+          // Create <option> for selectA
+          const optA = document.createElement("option");
+          optA.value = champName;
+          optA.textContent = champName;
+          selectA.appendChild(optA);
+
+          // Create <option> for selectB
+          const optB = document.createElement("option");
+          optB.value = champName;
+          optB.textContent = champName;
+          selectB.appendChild(optB);
+        });
+      })
+      .catch(err => {
+        console.error("Error loading champion list:", err);
+      });
+  }
 });
 
 // ───────── Auto‐search when dashboard.html?riotId=… ─────────
