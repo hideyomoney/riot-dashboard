@@ -29,4 +29,93 @@
         <p id="stat-mitigated">Self-Mitigated Damage: -</p>
         <p id="stat-healing">Total Healing Done: -</p>
       </div>
+
+      <!-- TEMPLATES: -->
+      <template id="match-card-template">
+        <div class="match-card">
+          <!-- TAB HEADER -->
+          <div class="tab-header" style="display: flex; gap: 12px; margin-bottom: 8px;">
+            <button class="tab-btn active" data-tab="overview"
+                    style="padding:4px 12px; border-radius:6px; border:none; background:#334155; color:white; cursor:pointer;">
+              Overview
+            </button>
+            <button class="tab-btn" data-tab="analysis"
+                    style="padding:4px 12px; border-radius:6px; border:none; background:#334155; color:white; cursor:pointer;">
+              Analysis
+            </button>
+          </div>
+
+          <!-- OVERVIEW TAB CONTENT -->
+          <div class="tab-content tab-overview">
+            <div class="summary-row">
+              <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <strong class="game-mode"></strong>
+                <span class="days-ago" style="font-size:13px; color:#cbd5e1; margin-top:2px;"></span>
+              </div>
+              <div class="game-duration"></div>
+            </div>
+
+            <div class="summary-row" style="align-items: center;">
+              <div style="display: flex; align-items: center;">
+                <img class="champ-img" src="" alt="" style="width: 44px; height: 44px; margin-right: 8px; border-radius: 4px;">
+                <div style="display: flex; flex-direction: column;">
+                  <div style="display: flex; gap: 4px;">
+                    <img class="spell-1" src="" alt="Spell1" style="width: 22px; height: 22px;" />
+                    <img class="spell-2" src="" alt="Spell2" style="width: 22px; height: 22px;" />
+                  </div>
+                  <div style="display: flex; gap: 4px; margin-top: 2px;">
+                    <img class="rune-primary" src="" alt="Primary Rune" style="width: 22px; height: 22px;" />
+                    <img class="rune-secondary" src="" alt="Secondary Rune" style="width: 22px; height: 22px;" />
+                  </div>
+                </div>
+              </div>
+              <div class="win-loss-label"><strong></strong></div>
+            </div>
+
+            <div class="summary-row">
+              <div><strong>KDA:</strong> <span class="kda-text"></span></div>
+              <div><strong>CS:</strong> <span class="cs-text"></span></div>
+              <div style="visibility: visible;"><strong>Wards:</strong> <span class="wards-text"></span></div>
+            </div>
+
+            <div class="summary-row" style="gap: 4px; flex-wrap: wrap; align-items: center;">
+              <div class="items" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
+            </div>
+
+            <!-- MATCH DETAILS (hidden by default) -->
+            <div class="match-details">
+              <div class="team-header team-victory">Victory (Red Team)</div>
+              <table class="player-table team-victory"><tbody class="victory-rows"></tbody></table>
+
+              <div class="team-header team-defeat">Defeat (Blue Team)</div>
+              <table class="player-table team-defeat">
+                <thead>
+                  <tr><th>Player</th><th>KDA</th><th>Damage</th><th>Gold</th><th>CS</th><th>Wards</th><th>Items</th></tr>
+                </thead>
+                <tbody class="defeat-rows"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ANALYSIS TAB CONTENT (hidden initially) -->
+          <div class="tab-content tab-analysis" style="display:none;">
+            <div style="padding: 12px 0;">
+              <h4 style="margin:0 0 8px 0; color:#60a5fa;">Performance Analysis</h4>
+              <ul style="list-style:none; padding:0; margin:0;">
+                <li><strong>KDA Ratio:</strong> <span class="analysis-kdaRatio"></span></li>
+                <li><strong>Total Damage Dealt:</strong> <span class="analysis-totalDamage"></span></li>
+                <li><strong>Total Damage Taken:</strong> <span class="analysis-totalTaken"></span></li>
+                <li><strong>Self-Mitigated Damage:</strong> <span class="analysis-mitigated"></span></li>
+                <li><strong>Total Healing Done:</strong> <span class="analysis-healing"></span></li>
+                <li><strong>Gold Earned:</strong> <span class="analysis-goldEarned"></span> (<span class="analysis-goldPerMin"></span> per min)</li>
+                <li><strong>CS per Minute:</strong> <span class="analysis-csPerMin"></span></li>
+                <li><strong>Wards Placed:</strong> <span class="analysis-wardsPlaced"></span></li>
+                <li><strong>Vision Score:</strong> <span class="analysis-visionScore"></span></li>
+                <li><strong>Largest Killing Spree:</strong> <span class="analysis-largestKillingSpree"></span></li>
+                <li><strong>Largest Multi Kill:</strong> <span class="analysis-largestMultiKill"></span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>

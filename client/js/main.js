@@ -149,6 +149,9 @@ async function fetchMatchStats() {
   const container = document.getElementById("matchContainer");
   container.innerHTML = "";
 
+  // Use the template
+  const template = document.getElementById("match-card-template");
+
   let totalDealt = 0;
   let totalTaken = 0;
   let totalMitigated = 0;
@@ -160,286 +163,168 @@ async function fetchMatchStats() {
 
   for (const match of matches) {
     const player = match.info.participants.find((p) => p.puuid === puuid);
+    if (!player) continue;
     const redTeam = match.info.participants.filter((p) => p.teamId === 200);
     const blueTeam = match.info.participants.filter((p) => p.teamId === 100);
+    const redWin = redTeam[0]?.win;
+    const victoryTeam = redWin ? redTeam : blueTeam;
+    const defeatTeam = redWin ? blueTeam : redTeam;
 
     if (player.win) wins++;
     totalKills += player.kills;
     totalDeaths += player.deaths;
     totalAssists += player.assists;
-
-    const redWin = redTeam[0].win;
-    const blueWin = blueTeam[0].win;
-
-    let victoryTeam, defeatTeam;
-    let victoryLabel, defeatLabel;
-
-    if (redWin) {
-      victoryTeam = redTeam;
-      defeatTeam = blueTeam;
-      victoryLabel = "Victory (Red Team)";
-      defeatLabel = "Defeat (Blue Team)";
-    } else {
-      victoryTeam = blueTeam;
-      defeatTeam = redTeam;
-      victoryLabel = "Victory (Blue Team)";
-      defeatLabel = "Defeat (Red Team)";
-    }
-
     totalDealt += player.totalDamageDealtToChampions || 0;
     totalTaken += player.totalDamageTaken || 0;
     totalMitigated += player.damageSelfMitigated || 0;
     totalHealing += player.totalHeal || 0;
 
-    const win = player.win;
-    const kdaRatio =
-      player.deaths === 0
-        ? (player.kills + player.assists).toFixed(2)
-        : ((player.kills + player.assists) / player.deaths).toFixed(2);
-    const kda = `${player.kills} / ${player.deaths} / ${player.assists} (${kdaRatio})`;
-    const cs = player.totalMinionsKilled;
-    const csPerMin = (cs / (match.info.gameDuration / 60)).toFixed(1);
-    const wards = player.wardsPlaced;
-    const showVision = match.info.gameMode.toUpperCase() === "CLASSIC";
-    let champ = player.championName;
-
-    // Normalize the name for image URL
-    const overrides = {
-      FiddleSticks: "Fiddlesticks",
-      Wukong: "MonkeyKing",
-      NunuWillump: "Nunu",
-      Renata: "RenataGlasc",
-      Belveth: "Belveth",
-      Kaisa: "Kaisa",
-      Kogmaw: "KogMaw",
-      AurelionSol: "AurelionSol",
-    };
+    // Calculate values for placeholders
+    const daysAgo = daysAgoFromTimestamp(match.info.gameEndTimestamp || match.info.gameCreation);
+    const duration = `${Math.floor(match.info.gameDuration / 60)}:${String(match.info.gameDuration % 60).padStart(2, '0')}`;
+    const champImgName = getChampImgName(player.championName);
+    const champSrc = `https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${champImgName}.png`;
     const spell1Name = summonerSpellMap[player.summoner1Id] || "Unknown";
     const spell2Name = summonerSpellMap[player.summoner2Id] || "Unknown";
-    const primaryRuneStyleId = player.perks.styles[0].style;
-    const secondaryRuneStyleId = player.perks.styles[1].style;
-    const primaryRuneFile = runeIconMap[primaryRuneStyleId] || "RunesIcon";
-    const secondaryRuneFile = runeIconMap[secondaryRuneStyleId] || "RunesIcon";
-
-    const primaryRuneUrl = `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${primaryRuneFile}.png`;
-    const secondaryRuneUrl = `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${secondaryRuneFile}.png`;
-
-    const champImgName = overrides[champ] || champ;
-    const duration = `${Math.floor(match.info.gameDuration / 60)}:${String(
-      match.info.gameDuration % 60
-    ).padStart(2, "0")}`;
-    const items = [
-      player.item0,
-      player.item1,
-      player.item2,
-      player.item3,
-      player.item4,
-      player.item5,
-      player.item6,
-    ];
-    const itemImgs = items
-      .map((id) =>
-        id
-          ? `<img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png" crossorigin="anonymous" alt="Item">`
-          : `<div class="empty-slot"></div>`
-      )
-      .join("");
-    const maxDamage = Math.max(
-      ...match.info.participants.map((p) => p.totalDamageDealtToChampions)
-    );
-    const matchTimestamp =
-      match.info.gameEndTimestamp || match.info.gameCreation;
-    const daysAgo = daysAgoFromTimestamp(matchTimestamp);
-
-    const card = document.createElement("div");
-    card.className = `match-card ${win ? "win" : "loss"}`;
-    card.onclick = () => toggleDetails(card);
-    card.innerHTML = `
-  <div class="tab-header" style="display: flex; gap: 12px; margin-bottom: 8px;">
-    <button class="tab-btn active" data-tab="overview" style="padding:4px 12px; border-radius:6px; border:none; background:#334155; color:white; cursor:pointer;">Overview</button>
-    <button class="tab-btn" data-tab="analysis" style="padding:4px 12px; border-radius:6px; border:none; background:#334155; color:white; cursor:pointer;">Analysis</button>
-  </div>
-  <div class="tab-content tab-overview">
-    <div class="summary-row">
-      <div style="display: flex; flex-direction: column; align-items: flex-start;">
-        <strong>${match.info.gameMode}</strong>
-        <span style="font-size:13px; color:#cbd5e1; margin-top:2px;">${daysAgo}</span>
-      </div>
-      <div>${duration}</div>
-    </div>
-    <div class="summary-row" style="align-items: center;">
-  <div style="display: flex; align-items: center;">
-    <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${champImgName}.png" crossorigin="anonymous" alt="${champ}" style="width: 44px; height: 44px; margin-right: 8px; border-radius: 4px;">
-    <div style="display: flex; flex-direction: column;">
-      <div style="display: flex; gap: 4px;">
-        <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell1Name}.png" crossorigin="anonymous" style="width: 22px; height: 22px;" />
-        <img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell2Name}.png" crossorigin="anonymous" style="width: 22px; height: 22px;" />
-      </div>
-      <div style="display: flex; gap: 4px; margin-top: 2px;">
-          <img src="${primaryRuneUrl}" crossorigin="anonymous" style="width: 22px; height: 22px;" />
-  <img src="${secondaryRuneUrl}" crossorigin="anonymous" style="width: 22px; height: 22px;" />
-
-      </div>
-    </div>
-  </div>
-  <div><strong>${win ? "Win" : "Loss"}</strong></div>
-</div>
-
-    <div class="summary-row">
-      <div><strong>KDA:</strong> ${kda}</div>
-      <div><strong>CS:</strong> ${cs} (${csPerMin})</div>
-      <div style="visibility: ${
-        showVision ? "visible" : "hidden"
-      };"><strong>Wards:</strong> ${wards}</div>
-    </div>
-    <div class="summary-row" style="gap: 4px; flex-wrap: wrap; align-items: center;">
-      <div class="items" style="display: flex; flex-wrap: wrap; gap: 4px;">
-        ${itemImgs}
-      </div>
-    </div>
-    <div class="match-details">
-      <div class="team-header team-victory">Victory (Red Team)</div>
-      <table class="player-table team-victory">
-        <tbody>
-          ${victoryTeam
-            .map(
-              (p) => `
-          <tr>
-            <td><img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${getChampImgName(
-              p.championName
-            )}.png" crossorigin="anonymous"> ${p.summonerName}</td>
-            <td>${p.kills}/${p.deaths}/${p.assists} (${(p.deaths === 0
-                ? p.kills + p.assists
-                : (p.kills + p.assists) / p.deaths
-              ).toFixed(2)})</td>
-            <td>
-              ${p.totalDamageDealtToChampions}<br>
-              <span class="bar" style="width:${
-                (p.totalDamageDealtToChampions / maxDamage) * 100
-              }%"></span>
-            </td>
-            <td>${p.goldEarned} (${(
-                p.goldEarned /
-                (match.info.gameDuration / 60)
-              ).toFixed(1)})</td>
-            <td>${p.totalMinionsKilled} (${(
-                p.totalMinionsKilled /
-                (match.info.gameDuration / 60)
-              ).toFixed(1)})</td>
-            <td>${p.wardsPlaced}</td>
-            <td>${[
-              p.item0,
-              p.item1,
-              p.item2,
-              p.item3,
-              p.item4,
-              p.item5,
-              p.item6,
-            ]
-              .map((id) =>
-                id
-                  ? `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\" crossorigin="anonymous">`
-                  : `<div class=\"empty-slot\"></div>`
-              )
-              .join("")}</td>
-          </tr>`
-            )
-            .join("")}
-        </tbody>
-      </table>
-      <div class="team-header team-defeat">Defeat (Blue Team)</div>
-      <table class="player-table team-defeat">
-        <thead>
-          <tr><th>Player</th><th>KDA</th><th>Damage</th><th>Gold</th><th>CS</th><th>Wards</th><th>Items</th></tr>
-        </thead>
-        <tbody>
-          ${defeatTeam
-            .map(
-              (p) => `
-          <tr>
-            <td><img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${getChampImgName(
-              p.championName
-            )}.png" crossorigin="anonymous" > ${p.summonerName}</td>
-            <td>${p.kills}/${p.deaths}/${p.assists} (${(p.deaths === 0
-                ? p.kills + p.assists
-                : (p.kills + p.assists) / p.deaths
-              ).toFixed(2)})</td>
-            <td>
-              ${p.totalDamageDealtToChampions}<br>
-              <span class="bar" style="width:${
-                (p.totalDamageDealtToChampions / maxDamage) * 100
-              }%"></span>
-            </td>
-            <td>${p.goldEarned} (${(
-                p.goldEarned /
-                (match.info.gameDuration / 60)
-              ).toFixed(1)})</td>
-            <td>${p.totalMinionsKilled} (${(
-                p.totalMinionsKilled /
-                (match.info.gameDuration / 60)
-              ).toFixed(1)})</td>
-            <td>${p.wardsPlaced}</td>
-            <td>${[
-              p.item0,
-              p.item1,
-              p.item2,
-              p.item3,
-              p.item4,
-              p.item5,
-              p.item6,
-            ]
-              .map((id) =>
-                id
-                  ? `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\" crossorigin="anonymous" >`
-                  : `<div class=\"empty-slot\"></div>`
-              )
-              .join("")}</td>
-          </tr>`
-            )
-            .join("")}
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="tab-content tab-analysis" style="display:none;">
-    <div style="padding: 12px 0;">
-      <h4 style="margin:0 0 8px 0; color:#60a5fa;">Performance Analysis</h4>
-      <ul style="list-style:none; padding:0; margin:0;">
-        <li><strong>KDA Ratio:</strong> ${kdaRatio}</li>
-        <li><strong>Total Damage Dealt:</strong> ${player.totalDamageDealtToChampions.toLocaleString()}</li>
-        <li><strong>Total Damage Taken:</strong> ${player.totalDamageTaken.toLocaleString()}</li>
-        <li><strong>Self-Mitigated Damage:</strong> ${player.damageSelfMitigated.toLocaleString()}</li>
-        <li><strong>Total Healing Done:</strong> ${player.totalHeal.toLocaleString()}</li>
-        <li><strong>Gold Earned:</strong> ${player.goldEarned.toLocaleString()} (${(
-      player.goldEarned /
-      (match.info.gameDuration / 60)
-    ).toFixed(1)} per min)</li>
-        <li><strong>CS per Minute:</strong> ${csPerMin}</li>
-        <li><strong>Wards Placed:</strong> ${wards}</li>
-        <li><strong>Vision Score:</strong> ${player.visionScore}</li>
-        <li><strong>Largest Killing Spree:</strong> ${
-          player.largestKillingSpree
-        }</li>
-        <li><strong>Largest Multi Kill:</strong> ${player.largestMultiKill}</li>
-      </ul>
-    </div>
-  </div>
-`;
-    // Add tab switching logic
-    const tabBtns = card.querySelectorAll(".tab-btn");
-    tabBtns.forEach((btn) => {
-      btn.onclick = function (e) {
+    const spell1Src = `https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell1Name}.png`;
+    const spell2Src = `https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell2Name}.png`;
+    const primaryRuneFile = runeIconMap[player.perks.styles[0].style] || "RunesIcon";
+    const secondaryRuneFile = runeIconMap[player.perks.styles[1].style] || "RunesIcon";
+    const primaryRuneSrc = `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${primaryRuneFile}.png`;
+    const secondaryRuneSrc = `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${secondaryRuneFile}.png`;
+    const kdaRatio = (player.deaths === 0)
+      ? (player.kills + player.assists).toFixed(2)
+      : ((player.kills + player.assists) / player.deaths).toFixed(2);
+    const kdaText = `${player.kills} / ${player.deaths} / ${player.assists} (${kdaRatio})`;
+    const cs = player.totalMinionsKilled || 0;
+    const csPerMin = ((cs / (match.info.gameDuration / 60)) || 0).toFixed(1);
+    const wards = player.wardsPlaced || 0;
+    const itemsArr = [player.item0, player.item1, player.item2, player.item3, player.item4, player.item5, player.item6];
+    const itemDivs = itemsArr.map(id => {
+      if (id) {
+        return `<img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png" crossorigin="anonymous" alt="Item">`;
+      } else {
+        return `<div class="empty-slot"></div>`;
+      }
+    }).join("");
+    const analysisFields = {
+      kdaRatio: kdaRatio,
+      totalDamage: (player.totalDamageDealtToChampions || 0).toLocaleString(),
+      totalTaken: (player.totalDamageTaken || 0).toLocaleString(),
+      mitigated: (player.damageSelfMitigated || 0).toLocaleString(),
+      healing: (player.totalHeal || 0).toLocaleString(),
+      goldEarned: (player.goldEarned || 0).toLocaleString(),
+      goldPerMin: ((player.goldEarned || 0) / (match.info.gameDuration / 60)).toFixed(1),
+      csPerMin: csPerMin,
+      wardsPlaced: wards,
+      visionScore: player.visionScore || 0,
+      largestKillingSpree: player.largestKillingSpree || 0,
+      largestMultiKill: player.largestMultiKill || 0
+    };
+    const winLabel = player.win ? "Win" : "Loss";
+    // ---- CLONE TEMPLATE ----
+    const clone = template.content.cloneNode(true);
+    // Fill overview‐tab placeholders:
+    clone.querySelector(".game-mode").textContent = match.info.gameMode;
+    clone.querySelector(".days-ago").textContent = daysAgo;
+    clone.querySelector(".game-duration").textContent = duration;
+    const champImgEl = clone.querySelector(".champ-img");
+    champImgEl.src = champSrc;
+    champImgEl.alt = player.championName;
+    clone.querySelector(".spell-1").src = spell1Src;
+    clone.querySelector(".spell-2").src = spell2Src;
+    clone.querySelector(".rune-primary").src = primaryRuneSrc;
+    clone.querySelector(".rune-secondary").src = secondaryRuneSrc;
+    clone.querySelector(".win-loss-label strong").textContent = winLabel;
+    clone.querySelector(".kda-text").textContent = kdaText;
+    clone.querySelector(".cs-text").textContent = `${cs} (${csPerMin})`;
+    clone.querySelector(".wards-text").textContent = wards;
+    clone.querySelector(".items").innerHTML = itemDivs;
+    // Populate Victory / Defeat tables:
+    const maxDamage = Math.max(...match.info.participants.map(p => p.totalDamageDealtToChampions || 0));
+    function buildRow(playerObj) {
+      const row = document.createElement("tr");
+      const ptd1 = document.createElement("td");
+      const imgName = getChampImgName(playerObj.championName);
+      ptd1.innerHTML = `<img src="https://ddragon.leagueoflegends.com/cdn/15.10.1/img/champion/${imgName}.png" crossorigin="anonymous"> ${playerObj.summonerName}`;
+      row.appendChild(ptd1);
+      const kdaRat = (playerObj.deaths === 0)
+        ? (playerObj.kills + playerObj.assists).toFixed(2)
+        : ((playerObj.kills + playerObj.assists) / playerObj.deaths).toFixed(2);
+      const ptd2 = document.createElement("td");
+      ptd2.textContent = `${playerObj.kills}/${playerObj.deaths}/${playerObj.assists} (${kdaRat})`;
+      row.appendChild(ptd2);
+      const ptd3 = document.createElement("td");
+      const dmg = playerObj.totalDamageDealtToChampions || 0;
+      const barWidth = maxDamage ? (dmg / maxDamage) * 100 : 0;
+      ptd3.innerHTML = `
+        ${dmg}<br>
+        <span class="bar" style="width:${barWidth}%;"></span>
+      `;
+      row.appendChild(ptd3);
+      const ptd4 = document.createElement("td");
+      const goldPM = ((playerObj.goldEarned || 0) / (match.info.gameDuration / 60)).toFixed(1);
+      ptd4.textContent = `${playerObj.goldEarned} (${goldPM})`;
+      row.appendChild(ptd4);
+      const csCount = playerObj.totalMinionsKilled || 0;
+      const ptd5 = document.createElement("td");
+      const csPM = ((csCount) / (match.info.gameDuration / 60)).toFixed(1);
+      ptd5.textContent = `${csCount} (${csPM})`;
+      row.appendChild(ptd5);
+      const ptd6 = document.createElement("td");
+      ptd6.textContent = playerObj.wardsPlaced || 0;
+      row.appendChild(ptd6);
+      const ptd7 = document.createElement("td");
+      const rowItems = [playerObj.item0, playerObj.item1, playerObj.item2, playerObj.item3, playerObj.item4, playerObj.item5, playerObj.item6];
+      ptd7.innerHTML = rowItems.map(id => {
+        if (id) {
+          return `<img src=\"https://ddragon.leagueoflegends.com/cdn/15.10.1/img/item/${id}.png\" crossorigin=\"anonymous\">`;
+        } else {
+          return `<div class=\"empty-slot\"></div>`;
+        }
+      }).join("");
+      row.appendChild(ptd7);
+      return row;
+    }
+    const victoryBody = clone.querySelector(".victory-rows");
+    const defeatBody = clone.querySelector(".defeat-rows");
+    victoryTeam.forEach(p => victoryBody.appendChild(buildRow(p)));
+    defeatTeam.forEach(p => defeatBody.appendChild(buildRow(p)));
+    // Fill analysis‐tab placeholders:
+    clone.querySelector(".analysis-kdaRatio").textContent = analysisFields.kdaRatio;
+    clone.querySelector(".analysis-totalDamage").textContent = analysisFields.totalDamage;
+    clone.querySelector(".analysis-totalTaken").textContent = analysisFields.totalTaken;
+    clone.querySelector(".analysis-mitigated").textContent = analysisFields.mitigated;
+    clone.querySelector(".analysis-healing").textContent = analysisFields.healing;
+    clone.querySelector(".analysis-goldEarned").textContent = analysisFields.goldEarned;
+    clone.querySelector(".analysis-goldPerMin").textContent = analysisFields.goldPerMin;
+    clone.querySelector(".analysis-csPerMin").textContent = analysisFields.csPerMin;
+    clone.querySelector(".analysis-wardsPlaced").textContent = analysisFields.wardsPlaced;
+    clone.querySelector(".analysis-visionScore").textContent = analysisFields.visionScore;
+    clone.querySelector(".analysis-largestKillingSpree").textContent = analysisFields.largestKillingSpree;
+    clone.querySelector(".analysis-largestMultiKill").textContent = analysisFields.largestMultiKill;
+    // Add tab‐switching and toggle‐details behavior:
+    clone.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", function(e) {
         e.stopPropagation();
-        tabBtns.forEach((b) => b.classList.remove("active"));
+        const parentCard = btn.closest(".match-card");
+        parentCard.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        card.querySelector(".tab-overview").style.display =
-          btn.dataset.tab === "overview" ? "" : "none";
-        card.querySelector(".tab-analysis").style.display =
-          btn.dataset.tab === "analysis" ? "" : "none";
-      };
+        parentCard.querySelector(".tab-overview").style.display = (btn.dataset.tab === "overview") ? "" : "none";
+        parentCard.querySelector(".tab-analysis").style.display = (btn.dataset.tab === "analysis") ? "" : "none";
+      });
     });
-
-    container.appendChild(card);
+    // Entire card toggles details
+    clone.querySelector(".match-card").addEventListener("click", e => {
+      // only toggle if user clicked outside the tab buttons
+      if (!e.target.classList.contains("tab-btn")) {
+        toggleDetails(e.currentTarget);
+      }
+    });
+    // Add win/loss class
+    clone.querySelector(".match-card").classList.add(player.win ? "win" : "loss");
+    // Finally, append the filled‐in clone to container
+    container.appendChild(clone);
   }
   const winRate = ((wins / matches.length) * 100).toFixed(1);
   const kdaRatioTotal =
@@ -447,7 +332,6 @@ async function fetchMatchStats() {
       ? "∞"
       : ((totalKills + totalAssists) / totalDeaths).toFixed(2);
   const totalKDA = `${totalKills}/${totalDeaths}/${totalAssists}`;
-
   document.getElementById(
     "stat-damage"
   ).textContent = `Total Damage Dealt: ${totalDealt.toLocaleString()}`;
@@ -509,40 +393,6 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(headerInterval);
     }
   }, 100);
-
-  // ─── 1) Populate champion dropdowns ──────────────────────────────────
-  const selectA = document.getElementById("championA");
-  const selectB = document.getElementById("championB");
-
-  // Only run the fetch/populate step if both selects exist on this page
-  if (selectA && selectB) {
-    fetch("/assets/champions/champions.json")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to load champions.json (status ${response.status})`);
-        }
-        return response.json();
-      })
-      .then(championList => {
-        // championList is an Array of strings
-        championList.forEach(champName => {
-          // Create <option> for selectA
-          const optA = document.createElement("option");
-          optA.value = champName;
-          optA.textContent = champName;
-          selectA.appendChild(optA);
-
-          // Create <option> for selectB
-          const optB = document.createElement("option");
-          optB.value = champName;
-          optB.textContent = champName;
-          selectB.appendChild(optB);
-        });
-      })
-      .catch(err => {
-        console.error("Error loading champion list:", err);
-      });
-  }
 });
 
 // ───────── Auto‐search when dashboard.html?riotId=… ─────────
