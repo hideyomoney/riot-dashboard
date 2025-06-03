@@ -465,3 +465,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// == Home‐page logic ==
+document.addEventListener("DOMContentLoaded", () => {
+  // Check for the home‐page elements; if they exist, wire up handlers:
+  const homeSearchBtn   = document.getElementById("homeSearchBtn");
+  const homeMatchupBtn  = document.getElementById("homeMatchupBtn");
+  const homeRiotIdInput = document.getElementById("homeRiotId");
+
+  if (homeSearchBtn && homeMatchupBtn && homeRiotIdInput) {
+    homeSearchBtn.onclick = () => {
+      const riotInputValue = homeRiotIdInput.value.trim();
+      if (!riotInputValue) {
+        alert("Please enter a Riot ID (e.g. lolarmon1#NA1).");
+        return;
+      }
+      window.location.href = `dashboard.html?riotId=${encodeURIComponent(riotInputValue)}`;
+    };
+
+    homeMatchupBtn.onclick = () => {
+      window.location.href = "matchup.html";
+    };
+
+    homeRiotIdInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        homeSearchBtn.click();
+      }
+    });
+  }
+});

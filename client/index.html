@@ -21,31 +21,7 @@
     <button id="homeMatchupBtn">Matchup Info</button>
   </div>
 
-  <script>
-    document.getElementById("homeSearchBtn").onclick = () => {
-      const riotInputValue = document.getElementById("homeRiotId").value.trim();
-      if (!riotInputValue) {
-        alert("Please enter a Riot ID (e.g. lolarmon1#NA1).");
-        return;
-      }
-      // Redirect to dashboard.html with the riotId as a query parameter:
-      window.location.href = `dashboard.html?riotId=${encodeURIComponent(
-        riotInputValue
-      )}`;
-    };
-
-    document.getElementById("homeMatchupBtn").onclick = () => {
-      window.location.href = "matchup.html";
-    };
-
-    // Allow pressing Enter in the input to trigger “Search”
-    document
-      .getElementById("homeRiotId")
-      .addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          document.getElementById("homeSearchBtn").click();
-        }
-      });
-  </script>
+  <!-- Include main.js (with defer) instead of inline script -->
+  <script src="js/main.js" defer></script>
 </body>
 </html>
