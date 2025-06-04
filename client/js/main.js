@@ -53,8 +53,8 @@ const runeIconMap = {
 };
 
 async function getWinProbability(position, champA, champB) {
-  console.log("Sending request to local backend...");
-  const res = await fetch("http://localhost:3000/api/predict", {
+  console.log("Sending request to backend /api/predict ...");
+  const res = await fetch("/api/predict", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -95,7 +95,7 @@ async function fetchMatchStats() {
   if (!gameName || !tagLine) return alert("Invalid Riot ID");
 
   const res1 = await fetch(
-    `http://localhost:3000/api/summoner/${gameName}/${tagLine}`
+    `/api/summoner/${gameName}/${tagLine}`
   );
   const summoner = await res1.json();
   const puuid = summoner.puuid;
@@ -103,7 +103,7 @@ async function fetchMatchStats() {
   // 🆕 Fetch encryptedSummonerId from backend
   let encryptedSummonerId = null;
   try {
-    const idRes = await fetch(`http://localhost:3000/api/summoner-id/${puuid}`);
+    const idRes = await fetch(`/api/summoner-id/${puuid}`);
     if (idRes.ok) {
       const idData = await idRes.json();
       encryptedSummonerId = idData.id;
@@ -116,7 +116,7 @@ async function fetchMatchStats() {
   let rankedData = [];
   if (encryptedSummonerId) {
     try {
-      const rankedRes = await fetch(`http://localhost:3000/api/ranked/${encryptedSummonerId}`);
+      const rankedRes = await fetch(`/api/ranked/${encryptedSummonerId}`);
       if (rankedRes.ok) {
         rankedData = await rankedRes.json();
       }
@@ -132,7 +132,7 @@ async function fetchMatchStats() {
 
   // ✅ Request filtered matches from backend
   const res2 = await fetch(
-    `http://localhost:3000/api/matches/${puuid}?count=${count}&mode=${mode}`
+    `/api/matches/${puuid}?count=${count}&mode=${mode}`
   );
   const matches = await res2.json();
 

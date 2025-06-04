@@ -11,7 +11,7 @@ dotenv.config();
 console.log("Using MONGO_URI =", process.env.MONGO_URI);
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -122,7 +122,7 @@ app.get('/api/matches/:puuid', async (req, res) => {
     for (const id of matchIds) {
       try {
         // Use our own backend to get match details, which caches in 'matchData'
-        const response = await fetch(`http://localhost:3000/api/match/${id}`);
+        const response = await fetch(`${req.protocol}://${req.get('host')}/api/match/${id}`);
         const data = await response.json();
         matchDetails.push(data);
       } catch (err) {
@@ -289,7 +289,7 @@ async function startServer() {
     console.log('✅ Using DB:', db.databaseName); // Log the DB name
 
     app.listen(PORT, () =>
-      console.log(`Server running on http://localhost:${PORT}`)
+      console.log(`Server running on port ${PORT}`)
     );
   } catch (err) {
     console.error('❌ MongoDB connection failed:', err.message);
