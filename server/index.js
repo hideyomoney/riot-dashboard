@@ -1,4 +1,3 @@
-// server/index.js
 console.log("🟢 Starting Express server…");
 
 const express = require('express');
@@ -285,14 +284,15 @@ app.post('/api/predict', async (req, res) => {
 // connect to MongoDB, then start Express
 async function startServer() {
   try {
+    console.log("🟢 Starting Express server…"); // debugging: before MongoDB connect
     await client.connect();
+    console.log('✅ Connected to MongoDB Atlas'); // debugging: after MongoDB connect
     db = client.db('LoLmatchups'); // ✅ must match actual DB name
-    console.log('✅ Connected to MongoDB');
     console.log('✅ Using DB:', db.databaseName); // Log the DB name
-console.log(`🔌 About to listen on port ${PORT}`);
+    console.log(`🔌 About to listen on port ${PORT}`);
 
     app.listen(PORT, () =>
-      console.log(`Server running on port ${PORT}`)
+      console.log(`🔌 Server listening on port ${PORT}`)
     );
   } catch (err) {
     console.error('❌ MongoDB connection failed:', err.message);
