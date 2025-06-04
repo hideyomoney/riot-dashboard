@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up - LOLSpect</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h2>Create an Account</h2>
+    <form id="signupForm">
+      <label>Username:</label><br />
+      <input type="text" id="signupUsername" required /><br /><br />
+      <label>Email:</label><br />
+      <input type="email" id="signupEmail" required /><br /><br />
+      <label>Password:</label><br />
+      <input type="password" id="signupPassword" required /><br /><br />
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Log In</a></p>
+    <p id="signupError" class="error-msg"></p>
+  </div>
+  <script src="js/auth.js" defer></script>
+</body>
+</html>

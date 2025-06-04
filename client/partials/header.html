@@ -20,6 +20,7 @@
 
 <input id="riotId" placeholder="Enter Riot ID (e.g. lolarmon1#NA1)" />
 <button onclick="fetchMatchStats()" id="searchBtn">Search</button>
+<button id="logoutBtn" style="float:right; margin-bottom:10px; display:none;">Log Out</button>
 <script>
   // Add navigation for the Matchup Info button
   window.addEventListener('DOMContentLoaded', function() {
@@ -28,6 +29,17 @@
       btn.onclick = function() {
         window.location.href = 'matchup.html';
       };
+    }
+
+    // Show/Hide Log Out depending on token
+    const token = localStorage.getItem('jwtToken');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (token && logoutBtn) {
+      logoutBtn.style.display = 'block';
+      logoutBtn.onclick = () => {
+        localStorage.removeItem('jwtToken');
+        window.location.href = 'login.html';
+      }
     }
   });
 </script>

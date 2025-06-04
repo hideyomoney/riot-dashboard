@@ -215,3 +215,42 @@ body.show-stats #rankInfo {
 #homeMatchupBtn:hover {
   background-color: #2563eb;
 }
+
+/* ===== Authentication Pages ===== */
+.auth-container {
+  max-width: 400px;
+  margin: 80px auto;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.auth-container h2 {
+  margin-bottom: 20px;
+}
+.auth-container input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #334155;
+}
+.auth-container button {
+  width: 100%;
+  padding: 10px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+.auth-container button:hover {
+  background: #2563eb;
+}
+.error-msg {
+  color: #f87171; /* red‐300 */
+  margin-top: 8px;
+}
+.auth-container a {
+  color: #60a5fa;
+}

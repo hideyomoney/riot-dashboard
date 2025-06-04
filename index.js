@@ -7,6 +7,10 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
+const { ObjectId } = require('mongodb');
 
 
 dotenv.config();
@@ -29,6 +33,7 @@ const { MongoClient } = require('mongodb');
 const uri = process.env.MONGO_URI; // Store your MongoDB URI in .env
 const client = new MongoClient(uri);
 let db;
+const usersCollection = () => db.collection('users');
 
 // Add champion name mapping for database normalization
 const champNameMap = {
@@ -52,9 +57,109 @@ const laneMap = {
   utility: "UTILITY"
 };
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token provided.' });
+  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+    if (err) return res.status(403).json({ error: 'Invalid token.' });
+    req.user = payload;
+    next();
+  });
+}
+// Rate limiters for signup/login
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many signup attempts, please try again later.' }
+});
+const loginLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many login attempts, please try again later.' }
+});
+// Signup Route
+app.post('/api/signup', signupLimiter, async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Missing required fields.' });
+    }
+    const existing = await usersCollection().findOne({
+      $or: [
+        { username: username.trim() },
+        { email: email.trim().toLowerCase() }
+      ]
+    });
+    if (existing) {
+      return res.status(409).json({ error: 'Username or email already taken.' });
+    }
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const newUser = {
+      username: username.trim(),
+      email: email.trim().toLowerCase(),
+      passwordHash,
+      createdAt: new Date()
+    };
+    const result = await usersCollection().insertOne(newUser);
+    const payload = { userId: result.insertedId, username: newUser.username };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '1h'
+    });
+    return res.status(201).json({ message: 'User created.', token });
+  } catch (err) {
+    console.error('❌ Signup error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+// Login Route
+app.post('/api/login', loginLimiter, async (req, res) => {
+  try {
+    const { usernameOrEmail, password } = req.body;
+    if (!usernameOrEmail || !password) {
+      return res.status(400).json({ error: 'Missing required fields.' });
+    }
+    const query = {
+      $or: [
+        { username: usernameOrEmail.trim() },
+        { email: usernameOrEmail.trim().toLowerCase() }
+      ]
+    };
+    const user = await usersCollection().findOne(query);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+    const payload = { userId: user._id, username: user.username };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '1h'
+    });
+    return res.json({ message: 'Login successful.', token });
+  } catch (err) {
+    console.error('❌ Login error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+// Get current user
+app.get('/api/me', authenticateToken, async (req, res) => {
+  try {
+    const user = await usersCollection().findOne(
+      { _id: new ObjectId(req.user.userId) },
+      { projection: { passwordHash: 0 } }
+    );
+    res.json({ user });
+  } catch (err) {
+    console.error('❌ /api/me error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
-
-app.get('/api/match-history', (req, res) => {
+// Protect API routes
+app.get('/api/match-history', authenticateToken, (req, res) => {
   const rawData = fs.readFileSync('./data/match.json'); // adjust path
   const match = JSON.parse(rawData);
 
@@ -82,7 +187,7 @@ app.get('/api/match-history', (req, res) => {
 /**
  * Route 1: Get PUUID from Riot ID
  */
-app.get('/api/summoner/:gameName/:tagLine', async (req, res) => {
+app.get('/api/summoner/:gameName/:tagLine', authenticateToken, async (req, res) => {
   const { gameName, tagLine } = req.params;
 
   try {
@@ -111,7 +216,7 @@ app.get('/api/summoner/:gameName/:tagLine', async (req, res) => {
 /**
  * Route 2: Get Match IDs from PUUID
  */
-app.get('/api/matches/:puuid', async (req, res) => {
+app.get('/api/matches/:puuid', authenticateToken, async (req, res) => {
   const { puuid } = req.params;
   const count = req.query.count || 20;
 
@@ -153,7 +258,7 @@ app.get('/api/matches/:puuid', async (req, res) => {
 /**
  * Route 3: Get Match Details from Match ID
  */
-app.get('/api/match/:matchId', async (req, res) => {
+app.get('/api/match/:matchId', authenticateToken, async (req, res) => {
   const { matchId } = req.params;
 
   try {
@@ -181,7 +286,7 @@ app.get('/api/match/:matchId', async (req, res) => {
 });
 
 // 🆕 Route: Get Summoner-v4 info (to get encryptedSummonerId from puuid)
-app.get('/api/summoner-id/:puuid', async (req, res) => {
+app.get('/api/summoner-id/:puuid', authenticateToken, async (req, res) => {
   const { puuid } = req.params;
   try {
     const response = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`, {
@@ -196,7 +301,7 @@ app.get('/api/summoner-id/:puuid', async (req, res) => {
 });
 
 // 🆕 Route: Get ranked info for a summoner by encryptedSummonerId
-app.get('/api/ranked/:encryptedSummonerId', async (req, res) => {
+app.get('/api/ranked/:encryptedSummonerId', authenticateToken, async (req, res) => {
   const { encryptedSummonerId } = req.params;
   try {
     // NA region for this dashboard
@@ -219,7 +324,7 @@ app.get('/api/ranked/:encryptedSummonerId', async (req, res) => {
  * Route: Get win probability for champion matchup
  * Uses pre-aggregated statistics from MongoDB instead of ML model
  */
-app.post('/api/predict', async (req, res) => {
+app.post('/api/predict', authenticateToken, async (req, res) => {
   console.log('🔮 /api/predict endpoint called');
   let { position, champion_A, champion_B } = req.body;
   console.log('➡️ Received from frontend:', { position, champion_A, champion_B });

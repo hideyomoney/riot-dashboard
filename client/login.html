@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Log In - LOLSpect</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h2>Log In</h2>
+    <form id="loginForm">
+      <label>Username or Email:</label><br />
+      <input type="text" id="loginUsernameOrEmail" required /><br /><br />
+      <label>Password:</label><br />
+      <input type="password" id="loginPassword" required /><br /><br />
+      <button type="submit">Log In</button>
+    </form>
+    <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
+    <p id="loginError" class="error-msg"></p>
+  </div>
+  <script src="js/auth.js" defer></script>
+</body>
+</html>
