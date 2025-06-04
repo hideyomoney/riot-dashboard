@@ -1,4 +1,6 @@
 // server/index.js
+console.log("🟢 Starting Express server…");
+
 const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
@@ -287,6 +289,7 @@ async function startServer() {
     db = client.db('LoLmatchups'); // ✅ must match actual DB name
     console.log('✅ Connected to MongoDB');
     console.log('✅ Using DB:', db.databaseName); // Log the DB name
+console.log(`🔌 About to listen on port ${PORT}`);
 
     app.listen(PORT, () =>
       console.log(`Server running on port ${PORT}`)
