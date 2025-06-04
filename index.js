@@ -301,9 +301,7 @@ async function startServer() {
     //console.log('✅ Using DB:', db.databaseName); // Log the DB name
 //console.log(` About to listen on port ${PORT}`);
 
-    app.listen(PORT, () =>
-      //console.log(`Server running on port ${PORT}`)
-    );
+    app.listen(PORT);
   } catch (err) {
     console.error(' MongoDB connection failed:', err.message);
     process.exit(1);
