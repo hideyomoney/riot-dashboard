@@ -53,30 +53,20 @@ const runeIconMap = {
 };
 
 async function getWinProbability(position, champA, champB) {
-  console.log("wee Sending request...");
-  const res = await fetch("http://localhost:5001/predict", {
+  console.log("Sending request to local backend...");
+  const res = await fetch("http://localhost:3000/api/predict", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       position: position,
       champion_A: champA,
-      champion_B: champB,
-      // zero-diff for a neutral lane matchup
-      csdiffat10_A: 0,
-      csdiffat15_A: 0,
-      csdiffat20_A: 0,
-      csdiffat25_A: 0,
-      golddiffat10_A: 0,
-      golddiffat15_A: 0,
-      golddiffat20_A: 0,
-      golddiffat25_A: 0,
-      xpdiffat10_A: 0,
-      xpdiffat15_A: 0,
-      xpdiffat20_A: 0,
-      xpdiffat25_A: 0,
-    }),
+      champion_B: champB
+    })
   });
   const result = await res.json();
+  if (result.error) {
+    throw new Error(result.error);
+  }
   return result.probability;
 }
 
@@ -450,6 +440,38 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       document.body.classList.add("show-stats");
     }
+  });
+
+  // Attach dashboard search button handler to update URL without reload
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.location.pathname.endsWith("dashboard.html")) return;
+
+    // Wait until header partial has injected #riotId and #searchBtn
+    const checkHandlerReady = setInterval(() => {
+      const riotInput = document.getElementById("riotId");
+      const searchBtn = document.getElementById("searchBtn");
+      if (riotInput && searchBtn) {
+        clearInterval(checkHandlerReady);
+        // Remove any existing click handler
+        searchBtn.onclick = null;
+        // Add new click handler
+        searchBtn.addEventListener("click", async () => {
+          const input = riotInput.value.trim();
+          if (!input) return;
+          await fetchMatchStats();
+          // Update the address bar to match the new Riot ID
+          const newUrl = `dashboard.html?riotId=${encodeURIComponent(input)}`;
+          window.history.replaceState(null, "", newUrl);
+          document.body.classList.add("show-stats");
+        });
+        // Also handle Enter key
+        riotInput.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            searchBtn.click();
+          }
+        });
+      }
+    }, 100);
   });
 
   // Allow pressing Enter in the username input to trigger search

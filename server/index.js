@@ -23,8 +23,27 @@ const uri = process.env.MONGO_URI; // Store your MongoDB URI in .env
 const client = new MongoClient(uri);
 let db;
 
+// Add champion name mapping for database normalization
+const champNameMap = {
+  Wukong: "MonkeyKing",
+  FiddleSticks: "Fiddlesticks",
+  Kaisa: "Kaisa",
+  Kogmaw: "KogMaw",
+  Belveth: "Belveth",
+  AurelionSol: "AurelionSol"
+};
+const normalizeChampion = name => champNameMap[name] || name;
 
-
+// Add lane mapping for database queries
+const laneMap = {
+  top: "TOP",
+  jungle: "JUNGLE",
+  mid: "MIDDLE",
+  middle: "MIDDLE",
+  bottom: "BOTTOM",
+  support: "UTILITY",
+  utility: "UTILITY"
+};
 
 
 
@@ -102,6 +121,7 @@ app.get('/api/matches/:puuid', async (req, res) => {
 
     for (const id of matchIds) {
       try {
+        // Use our own backend to get match details, which caches in 'matchData'
         const response = await fetch(`http://localhost:3000/api/match/${id}`);
         const data = await response.json();
         matchDetails.push(data);
@@ -130,6 +150,7 @@ app.get('/api/match/:matchId', async (req, res) => {
   const { matchId } = req.params;
 
   try {
+    // Use 'matchData' collection for user match data
     const cached = await db.collection('matchData').findOne({ matchId });
     if (cached) {
       console.log(`🔁 Returning cached match: ${matchId}`);
@@ -151,7 +172,6 @@ app.get('/api/match/:matchId', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 // 🆕 Route: Get Summoner-v4 info (to get encryptedSummonerId from puuid)
 app.get('/api/summoner-id/:puuid', async (req, res) => {
@@ -188,13 +208,85 @@ app.get('/api/ranked/:encryptedSummonerId', async (req, res) => {
   }
 });
 
+/**
+ * Route: Get win probability for champion matchup
+ * Uses pre-aggregated statistics from MongoDB instead of ML model
+ */
+app.post('/api/predict', async (req, res) => {
+  console.log('🔮 /api/predict endpoint called');
+  let { position, champion_A, champion_B } = req.body;
+  console.log('➡️ Received from frontend:', { position, champion_A, champion_B });
+
+  if (!position || !champion_A || !champion_B) {
+    console.log('❌ Missing required fields');
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const normalizedPosition = laneMap[position.trim().toLowerCase()];
+  console.log('🔄 Normalized position:', normalizedPosition);
+  if (!normalizedPosition) {
+    console.log('❌ Invalid position value:', position);
+    return res.status(400).json({ error: 'Invalid position value' });
+  }
+
+  champion_A = normalizeChampion(champion_A.trim());
+  champion_B = normalizeChampion(champion_B.trim());
+  console.log('🔄 Normalized champions:', { champion_A, champion_B });
+
+  try {
+    const query = [
+      {
+        $match: {
+          position: normalizedPosition,
+          $or: [
+            { championA: champion_A, championB: champion_B },
+            { championA: champion_B, championB: champion_A }
+          ]
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          probability: {
+            $cond: [
+              { $eq: ["$gamesPlayed", 0] },
+              0.5,
+              {
+                $cond: [
+                  { $eq: ["$championA", champion_A] },
+                  { $divide: ["$winsA", "$gamesPlayed"] },
+                  { $subtract: [1, { $divide: ["$winsA", "$gamesPlayed"] }] }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ];
+    console.log('🗄️ MongoDB aggregate query:', JSON.stringify(query, null, 2));
+    const result = await db.collection('matchupStats').aggregate(query).toArray();
+    console.log('📦 MongoDB result:', result);
+
+    if (result.length === 0) {
+      console.log('❌ Matchup not found in DB');
+      return res.status(404).json({ error: 'Matchup not found' });
+    }
+
+    console.log('✅ Returning probability:', result[0].probability);
+    res.json({ probability: result[0].probability });
+  } catch (err) {
+    console.error('Error in /api/predict:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // connect to MongoDB, then start Express
 async function startServer() {
   try {
     await client.connect();
-    db = client.db('matchData');
+    db = client.db('LoLmatchups'); // ✅ must match actual DB name
     console.log('✅ Connected to MongoDB');
+    console.log('✅ Using DB:', db.databaseName); // Log the DB name
 
     app.listen(PORT, () =>
       console.log(`Server running on http://localhost:${PORT}`)
