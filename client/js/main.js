@@ -126,7 +126,7 @@ async function fetchMatchStats() {
   }
   displayRankedInfo(rankedData);
 
-  // ✅ Get filters from the user
+  //  Get filters from the user
   const mode = document.getElementById("gameModeSelect").value;
   const count = document.getElementById("gameCount").value || 20;
 
