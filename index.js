@@ -287,6 +287,12 @@ app.post('/api/predict', async (req, res) => {
   }
 });
 
+// Serve runeLookup.json and other data files
+app.use(
+  "/data",
+  express.static(path.join(__dirname, "client/assets/data"))
+);
+
 // connect to MongoDB, then start Express
 async function startServer() {
   try {

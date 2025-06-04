@@ -178,9 +178,14 @@ async function fetchMatchStats() {
     const spell2Name = summonerSpellMap[player.summoner2Id] || "Unknown";
     const spell1Src = `https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell1Name}.png`;
     const spell2Src = `https://ddragon.leagueoflegends.com/cdn/15.10.1/img/spell/${spell2Name}.png`;
-    const primaryRuneFile = runeIconMap[player.perks.styles[0].style] || "RunesIcon";
+    // Use runeLookup for primary rune icon only
+    const primaryPerkId = player.perks.styles[0].selections[0].perk;
+    const primaryInfo = runeLookup[primaryPerkId];
+    const primaryRuneSrc = primaryInfo
+      ? `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${primaryInfo.iconPath}`
+      : "/assets/runes/rune-placeholder.png";
+    // Secondary rune logic remains unchanged
     const secondaryRuneFile = runeIconMap[player.perks.styles[1].style] || "RunesIcon";
-    const primaryRuneSrc = `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${primaryRuneFile}.png`;
     const secondaryRuneSrc = `https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/${secondaryRuneFile}.png`;
     const kdaRatio = (player.deaths === 0)
       ? (player.kills + player.assists).toFixed(2)
@@ -405,8 +410,10 @@ window.addEventListener("DOMContentLoaded", () => {
       riotInput.value = riotIdParam;
 
       // 2) Trigger the same behavior as clicking “Search”
-      fetchMatchStats();
-      document.body.classList.add("show-stats");
+      loadRuneLookup().then(() => {
+        fetchMatchStats();
+        document.body.classList.add("show-stats");
+      });
     }
   }, 100);
 });
@@ -458,6 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
         searchBtn.addEventListener("click", async () => {
           const input = riotInput.value.trim();
           if (!input) return;
+          if (!Object.keys(runeLookup).length) await loadRuneLookup();
           await fetchMatchStats();
           // Update the address bar to match the new Riot ID
           const newUrl = `dashboard.html?riotId=${encodeURIComponent(input)}`;
@@ -516,3 +524,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+let runeLookup = {};
+async function loadRuneLookup() {
+  try {
+    const response = await fetch("/data/runeLookup.json");
+    if (!response.ok) throw new Error("Could not fetch runeLookup.json");
+    runeLookup = await response.json();
+  } catch (err) {
+    console.error("Error loading runeLookup.json:", err);
+    runeLookup = {};
+  }
+}

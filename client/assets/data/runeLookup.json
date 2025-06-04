@@ -1,0 +1,307 @@
+{
+  "8112": {
+    "style": "Domination",
+    "rune": "Electrocute",
+    "iconPath": "Domination/Electrocute/Electrocute.png"
+  },
+  "8128": {
+    "style": "Domination",
+    "rune": "DarkHarvest",
+    "iconPath": "Domination/DarkHarvest/DarkHarvest.png"
+  },
+  "9923": {
+    "style": "Domination",
+    "rune": "HailOfBlades",
+    "iconPath": "Domination/HailOfBlades/HailOfBlades.png"
+  },
+  "8126": {
+    "style": "Domination",
+    "rune": "CheapShot",
+    "iconPath": "Domination/CheapShot/CheapShot.png"
+  },
+  "8139": {
+    "style": "Domination",
+    "rune": "TasteOfBlood",
+    "iconPath": "Domination/TasteOfBlood/GreenTerror_TasteOfBlood.png"
+  },
+  "8143": {
+    "style": "Domination",
+    "rune": "SuddenImpact",
+    "iconPath": "Domination/SuddenImpact/SuddenImpact.png"
+  },
+  "8137": {
+    "style": "Domination",
+    "rune": "SixthSense",
+    "iconPath": "Domination/SixthSense/SixthSense.png"
+  },
+  "8140": {
+    "style": "Domination",
+    "rune": "GrislyMementos",
+    "iconPath": "Domination/GrislyMementos/GrislyMementos.png"
+  },
+  "8141": {
+    "style": "Domination",
+    "rune": "DeepWard",
+    "iconPath": "Domination/DeepWard/DeepWard.png"
+  },
+  "8135": {
+    "style": "Domination",
+    "rune": "TreasureHunter",
+    "iconPath": "Domination/TreasureHunter/TreasureHunter.png"
+  },
+  "8105": {
+    "style": "Domination",
+    "rune": "RelentlessHunter",
+    "iconPath": "Domination/RelentlessHunter/RelentlessHunter.png"
+  },
+  "8106": {
+    "style": "Domination",
+    "rune": "UltimateHunter",
+    "iconPath": "Domination/UltimateHunter/UltimateHunter.png"
+  },
+  "8351": {
+    "style": "Inspiration",
+    "rune": "GlacialAugment",
+    "iconPath": "Inspiration/GlacialAugment/GlacialAugment.png"
+  },
+  "8360": {
+    "style": "Inspiration",
+    "rune": "UnsealedSpellbook",
+    "iconPath": "Inspiration/UnsealedSpellbook/UnsealedSpellbook.png"
+  },
+  "8369": {
+    "style": "Inspiration",
+    "rune": "FirstStrike",
+    "iconPath": "Inspiration/FirstStrike/FirstStrike.png"
+  },
+  "8306": {
+    "style": "Inspiration",
+    "rune": "HextechFlashtraption",
+    "iconPath": "Inspiration/HextechFlashtraption/HextechFlashtraption.png"
+  },
+  "8304": {
+    "style": "Inspiration",
+    "rune": "MagicalFootwear",
+    "iconPath": "Inspiration/MagicalFootwear/MagicalFootwear.png"
+  },
+  "8321": {
+    "style": "Inspiration",
+    "rune": "CashBack",
+    "iconPath": "Inspiration/CashBack/CashBack2.png"
+  },
+  "8313": {
+    "style": "Inspiration",
+    "rune": "PerfectTiming",
+    "iconPath": "Inspiration/PerfectTiming/AlchemistCabinet.png"
+  },
+  "8352": {
+    "style": "Inspiration",
+    "rune": "TimeWarpTonic",
+    "iconPath": "Inspiration/TimeWarpTonic/TimeWarpTonic.png"
+  },
+  "8345": {
+    "style": "Inspiration",
+    "rune": "BiscuitDelivery",
+    "iconPath": "Inspiration/BiscuitDelivery/BiscuitDelivery.png"
+  },
+  "8347": {
+    "style": "Inspiration",
+    "rune": "CosmicInsight",
+    "iconPath": "Inspiration/CosmicInsight/CosmicInsight.png"
+  },
+  "8410": {
+    "style": "Inspiration",
+    "rune": "ApproachVelocity",
+    "iconPath": "Resolve/ApproachVelocity/ApproachVelocity.png"
+  },
+  "8316": {
+    "style": "Inspiration",
+    "rune": "JackOfAllTrades",
+    "iconPath": "Inspiration/JackOfAllTrades/JackofAllTrades2.png"
+  },
+  "8005": {
+    "style": "Precision",
+    "rune": "PressTheAttack",
+    "iconPath": "Precision/PressTheAttack/PressTheAttack.png"
+  },
+  "8008": {
+    "style": "Precision",
+    "rune": "LethalTempo",
+    "iconPath": "Precision/LethalTempo/LethalTempoTemp.png"
+  },
+  "8021": {
+    "style": "Precision",
+    "rune": "FleetFootwork",
+    "iconPath": "Precision/FleetFootwork/FleetFootwork.png"
+  },
+  "8010": {
+    "style": "Precision",
+    "rune": "Conqueror",
+    "iconPath": "Precision/Conqueror/Conqueror.png"
+  },
+  "9101": {
+    "style": "Precision",
+    "rune": "AbsorbLife",
+    "iconPath": "Precision/AbsorbLife/AbsorbLife.png"
+  },
+  "9111": {
+    "style": "Precision",
+    "rune": "Triumph",
+    "iconPath": "Precision/Triumph.png"
+  },
+  "8009": {
+    "style": "Precision",
+    "rune": "PresenceOfMind",
+    "iconPath": "Precision/PresenceOfMind/PresenceOfMind.png"
+  },
+  "9104": {
+    "style": "Precision",
+    "rune": "LegendAlacrity",
+    "iconPath": "Precision/LegendAlacrity/LegendAlacrity.png"
+  },
+  "9105": {
+    "style": "Precision",
+    "rune": "LegendHaste",
+    "iconPath": "Precision/LegendHaste/LegendHaste.png"
+  },
+  "9103": {
+    "style": "Precision",
+    "rune": "LegendBloodline",
+    "iconPath": "Precision/LegendBloodline/LegendBloodline.png"
+  },
+  "8014": {
+    "style": "Precision",
+    "rune": "CoupDeGrace",
+    "iconPath": "Precision/CoupDeGrace/CoupDeGrace.png"
+  },
+  "8017": {
+    "style": "Precision",
+    "rune": "CutDown",
+    "iconPath": "Precision/CutDown/CutDown.png"
+  },
+  "8299": {
+    "style": "Precision",
+    "rune": "LastStand",
+    "iconPath": "Sorcery/LastStand/LastStand.png"
+  },
+  "8437": {
+    "style": "Resolve",
+    "rune": "GraspOfTheUndying",
+    "iconPath": "Resolve/GraspOfTheUndying/GraspOfTheUndying.png"
+  },
+  "8439": {
+    "style": "Resolve",
+    "rune": "Aftershock",
+    "iconPath": "Resolve/VeteranAftershock/VeteranAftershock.png"
+  },
+  "8465": {
+    "style": "Resolve",
+    "rune": "Guardian",
+    "iconPath": "Resolve/Guardian/Guardian.png"
+  },
+  "8446": {
+    "style": "Resolve",
+    "rune": "Demolish",
+    "iconPath": "Resolve/Demolish/Demolish.png"
+  },
+  "8463": {
+    "style": "Resolve",
+    "rune": "FontOfLife",
+    "iconPath": "Resolve/FontOfLife/FontOfLife.png"
+  },
+  "8401": {
+    "style": "Resolve",
+    "rune": "ShieldBash",
+    "iconPath": "Resolve/MirrorShell/MirrorShell.png"
+  },
+  "8429": {
+    "style": "Resolve",
+    "rune": "Conditioning",
+    "iconPath": "Resolve/Conditioning/Conditioning.png"
+  },
+  "8444": {
+    "style": "Resolve",
+    "rune": "SecondWind",
+    "iconPath": "Resolve/SecondWind/SecondWind.png"
+  },
+  "8473": {
+    "style": "Resolve",
+    "rune": "BonePlating",
+    "iconPath": "Resolve/BonePlating/BonePlating.png"
+  },
+  "8451": {
+    "style": "Resolve",
+    "rune": "Overgrowth",
+    "iconPath": "Resolve/Overgrowth/Overgrowth.png"
+  },
+  "8453": {
+    "style": "Resolve",
+    "rune": "Revitalize",
+    "iconPath": "Resolve/Revitalize/Revitalize.png"
+  },
+  "8242": {
+    "style": "Resolve",
+    "rune": "Unflinching",
+    "iconPath": "Sorcery/Unflinching/Unflinching.png"
+  },
+  "8214": {
+    "style": "Sorcery",
+    "rune": "SummonAery",
+    "iconPath": "Sorcery/SummonAery/SummonAery.png"
+  },
+  "8229": {
+    "style": "Sorcery",
+    "rune": "ArcaneComet",
+    "iconPath": "Sorcery/ArcaneComet/ArcaneComet.png"
+  },
+  "8230": {
+    "style": "Sorcery",
+    "rune": "PhaseRush",
+    "iconPath": "Sorcery/PhaseRush/PhaseRush.png"
+  },
+  "8224": {
+    "style": "Sorcery",
+    "rune": "Axiom Arcanist",
+    "iconPath": "Sorcery/NullifyingOrb/Axiom_Arcanist.png"
+  },
+  "8226": {
+    "style": "Sorcery",
+    "rune": "ManaflowBand",
+    "iconPath": "Sorcery/ManaflowBand/ManaflowBand.png"
+  },
+  "8275": {
+    "style": "Sorcery",
+    "rune": "NimbusCloak",
+    "iconPath": "Sorcery/NimbusCloak/6361.png"
+  },
+  "8210": {
+    "style": "Sorcery",
+    "rune": "Transcendence",
+    "iconPath": "Sorcery/Transcendence/Transcendence.png"
+  },
+  "8234": {
+    "style": "Sorcery",
+    "rune": "Celerity",
+    "iconPath": "Sorcery/Celerity/CelerityTemp.png"
+  },
+  "8233": {
+    "style": "Sorcery",
+    "rune": "AbsoluteFocus",
+    "iconPath": "Sorcery/AbsoluteFocus/AbsoluteFocus.png"
+  },
+  "8237": {
+    "style": "Sorcery",
+    "rune": "Scorch",
+    "iconPath": "Sorcery/Scorch/Scorch.png"
+  },
+  "8232": {
+    "style": "Sorcery",
+    "rune": "Waterwalking",
+    "iconPath": "Sorcery/Waterwalking/Waterwalking.png"
+  },
+  "8236": {
+    "style": "Sorcery",
+    "rune": "GatheringStorm",
+    "iconPath": "Sorcery/GatheringStorm/GatheringStorm.png"
+  }
+}
