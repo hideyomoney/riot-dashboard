@@ -17,8 +17,13 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-const clientPath = path.join(__dirname, '..', 'client');
+const clientPath = path.join(__dirname, 'client');
 app.use(express.static(clientPath));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(clientPath, 'index.html'));
+});
+
 const { MongoClient } = require('mongodb');
 
 const uri = process.env.MONGO_URI; // Store your MongoDB URI in .env

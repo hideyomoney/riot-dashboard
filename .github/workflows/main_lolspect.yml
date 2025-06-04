@@ -11,8 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read  # required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -24,20 +22,8 @@ jobs:
 
       - name: npm install, build, and test (server only)
         run: |
-          cd server
           npm install
           npm run build --if-present
-
-      - name: Zip the `/server` folder for deployment
-        run: |
-          cd server
-          zip -r ../release.zip .
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app
-          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,13 +36,7 @@ jobs:
       contents: read        # required for actions/checkout
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
+      - uses: actions/checkout@v4
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -71,4 +51,4 @@ jobs:
         with:
           app-name: 'LOLSpect'
           slot-name: 'Production'
-          package: .   # deploy the current directory—which is exactly the unzipped /server contents
+          package: .   # deploy the current directory
