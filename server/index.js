@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-const clientPath = path.join(__dirname, '..', 'client');
+const clientPath = path.join(__dirname, 'client');
 app.use(express.static(clientPath));
 
 // Explicitly serve index.html at root
