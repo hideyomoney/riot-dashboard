@@ -10,7 +10,6 @@ const path = require('path');
 
 
 dotenv.config();
-console.log("Using MONGO_URI =", process.env.MONGO_URI);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -299,14 +298,14 @@ async function startServer() {
     await client.connect();
     db = client.db('LoLmatchups'); // ✅ must match actual DB name
     console.log('✅ Connected to MongoDB');
-    console.log('✅ Using DB:', db.databaseName); // Log the DB name
-console.log(`🔌 About to listen on port ${PORT}`);
+    //console.log('✅ Using DB:', db.databaseName); // Log the DB name
+//console.log(` About to listen on port ${PORT}`);
 
     app.listen(PORT, () =>
-      console.log(`Server running on port ${PORT}`)
+      //console.log(`Server running on port ${PORT}`)
     );
   } catch (err) {
-    console.error('❌ MongoDB connection failed:', err.message);
+    console.error(' MongoDB connection failed:', err.message);
     process.exit(1);
   }
 }
