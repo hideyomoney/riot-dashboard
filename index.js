@@ -269,7 +269,7 @@ app.post('/api/predict', async (req, res) => {
         }
       }
     ];
-    console.log('🗄️ MongoDB aggregate query:', JSON.stringify(query, null, 2));
+    //console.log('🗄️ MongoDB aggregate query:', JSON.stringify(query, null, 2));
     const result = await db.collection('matchupStats').aggregate(query).toArray();
     console.log('📦 MongoDB result:', result);
 
