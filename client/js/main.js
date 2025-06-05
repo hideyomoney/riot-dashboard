@@ -327,18 +327,20 @@ async function fetchMatchStats() {
       ? "∞"
       : ((totalKills + totalAssists) / totalDeaths).toFixed(2);
   const totalKDA = `${totalKills}/${totalDeaths}/${totalAssists}`;
+  const matchCount = matches.length || 1; // prevent divide-by-zero
+
   document.getElementById(
     "stat-damage"
-  ).textContent = `Total Damage Dealt: ${totalDealt.toLocaleString()}`;
+  ).textContent = `Avg Damage Dealt: ${(totalDealt / matchCount).toFixed(0).toLocaleString()}`;
   document.getElementById(
     "stat-taken"
-  ).textContent = `Total Damage Taken: ${totalTaken.toLocaleString()}`;
+  ).textContent = `Avg Damage Taken: ${(totalTaken / matchCount).toFixed(0).toLocaleString()}`;
   document.getElementById(
     "stat-mitigated"
-  ).textContent = `Self-Mitigated Damage: ${totalMitigated.toLocaleString()}`;
+  ).textContent = `Avg Self-Mitigated: ${(totalMitigated / matchCount).toFixed(0).toLocaleString()}`;
   document.getElementById(
     "stat-healing"
-  ).textContent = `Total Healing Done: ${totalHealing.toLocaleString()}`;
+  ).textContent = `Avg Healing Done: ${(totalHealing / matchCount).toFixed(0).toLocaleString()}`;
   document.getElementById("stat-winrate").textContent = `Winrate: ${winRate}%`;
   document.getElementById("stat-kda").textContent = `Total K/D/A: ${totalKDA}`;
   document.getElementById(
