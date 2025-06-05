@@ -390,35 +390,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 100);
 });
 
-// ───────── Auto‐search when dashboard.html?riotId=… ─────────
-window.addEventListener("DOMContentLoaded", () => {
-  // Only run on dashboard.html
-  if (!window.location.pathname.endsWith("dashboard.html")) return;
-
-  const params = new URLSearchParams(window.location.search);
-  const riotIdParam = params.get("riotId");
-  if (!riotIdParam) return;
-
-  // Wait until header partial has injected #riotId and #searchBtn
-  const checkHeaderReady = setInterval(() => {
-    const riotInput = document.getElementById("riotId");
-    const searchBtn = document.getElementById("searchBtn");
-    if (riotInput && searchBtn) {
-      clearInterval(checkHeaderReady);
-
-      // 1) Fill in the Riot ID input
-      riotInput.value = riotIdParam;
-
-      // 2) Trigger the same behavior as clicking “Search”
-      loadRuneLookup().then(() => {
-        fetchMatchStats();
-        document.body.classList.add("show-stats");
-      });
-    }
-  }, 100);
-});
-
-document.addEventListener("DOMContentLoaded", () => {
+// 🆕 Move header and dashboard partial injection to window.onload
+window.addEventListener("load", () => {
   const headerTarget = document.getElementById("header");
   if (headerTarget) {
     fetch("partials/header.html")
@@ -439,61 +412,102 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((err) => console.error("Error loading dashboard partial:", err));
   }
 
-  // Show total stats after search
+  // Attach Matchup Info button handler after header is loaded
+  const headerInterval = setInterval(() => {
+    const btn = document.getElementById('matchupInfoBtn');
+    if (btn) {
+      btn.onclick = function() {
+        window.location.href = 'matchup.html';
+      };
+      clearInterval(headerInterval);
+    }
+  }, 100);
+});
+
+// ───────── Auto‐search when dashboard.html?riotId=… ─────────
+window.addEventListener("load", () => {
+  // Only run on dashboard.html
+  if (!window.location.pathname.endsWith("dashboard.html")) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const riotIdParam = params.get("riotId");
+  if (!riotIdParam) return;
+
+  // Wait until header partial has injected #riotId and #searchBtn
+  const checkHeaderReady = setInterval(() => {
+    const riotInput = document.getElementById("riotId");
+    const searchBtn = document.getElementById("searchBtn");
+    if (riotInput && searchBtn) {
+      clearInterval(checkHeaderReady);
+
+      // 1) Fill in the Riot ID input
+      riotInput.value = riotIdParam;
+
+      // 2) Trigger the same behavior as clicking “Search”
+      loadRuneLookup().then(() => {
+        fetchMatchStats();
+        setTimeout(() => document.body.classList.add("show-stats"), 100);
+      });
+    }
+  }, 100);
+});
+
+// Show total stats after search, but only after load
+window.addEventListener("load", () => {
   document.body.addEventListener("click", function (e) {
     if (
       (e.target && e.target.id === "searchBtn") ||
       (e.target && e.target.getAttribute && e.target.getAttribute("onclick") === "fetchMatchStats()")
     ) {
-      document.body.classList.add("show-stats");
+      setTimeout(() => document.body.classList.add("show-stats"), 100);
     }
   });
+});
 
-  // Attach dashboard search button handler to update URL without reload
-  window.addEventListener("DOMContentLoaded", () => {
-    if (!window.location.pathname.endsWith("dashboard.html")) return;
+// Attach dashboard search button handler to update URL without reload
+window.addEventListener("load", () => {
+  if (!window.location.pathname.endsWith("dashboard.html")) return;
 
-    // Wait until header partial has injected #riotId and #searchBtn
-    const checkHandlerReady = setInterval(() => {
-      const riotInput = document.getElementById("riotId");
-      const searchBtn = document.getElementById("searchBtn");
-      if (riotInput && searchBtn) {
-        clearInterval(checkHandlerReady);
-        // Remove any existing click handler
-        searchBtn.onclick = null;
-        // Add new click handler
-        searchBtn.addEventListener("click", async () => {
-          const input = riotInput.value.trim();
-          if (!input) return;
-          if (!Object.keys(runeLookup).length) await loadRuneLookup();
-          await fetchMatchStats();
-          // Update the address bar to match the new Riot ID
-          const newUrl = `dashboard.html?riotId=${encodeURIComponent(input)}`;
-          window.history.replaceState(null, "", newUrl);
-          document.body.classList.add("show-stats");
-        });
-        // Also handle Enter key
-        riotInput.addEventListener("keydown", function (e) {
-          if (e.key === "Enter" || e.keyCode === 13) {
-            searchBtn.click();
-          }
-        });
-      }
-    }, 100);
-  });
-
-  // Allow pressing Enter in the username input to trigger search
-  document.body.addEventListener("keydown", function (e) {
-    const riotIdInput = document.getElementById("riotId");
-    if (
-      riotIdInput &&
-      document.activeElement === riotIdInput &&
-      (e.key === "Enter" || e.keyCode === 13)
-    ) {
-      const searchBtn = document.getElementById("searchBtn") || document.querySelector("button[onclick='fetchMatchStats()']");
-      if (searchBtn) searchBtn.click();
+  // Wait until header partial has injected #riotId and #searchBtn
+  const checkHandlerReady = setInterval(() => {
+    const riotInput = document.getElementById("riotId");
+    const searchBtn = document.getElementById("searchBtn");
+    if (riotInput && searchBtn) {
+      clearInterval(checkHandlerReady);
+      // Remove any existing click handler
+      searchBtn.onclick = null;
+      // Add new click handler
+      searchBtn.addEventListener("click", async () => {
+        const input = riotInput.value.trim();
+        if (!input) return;
+        if (!Object.keys(runeLookup).length) await loadRuneLookup();
+        await fetchMatchStats();
+        // Update the address bar to match the new Riot ID
+        const newUrl = `dashboard.html?riotId=${encodeURIComponent(input)}`;
+        window.history.replaceState(null, "", newUrl);
+        setTimeout(() => document.body.classList.add("show-stats"), 100);
+      });
+      // Also handle Enter key
+      riotInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.keyCode === 13) {
+          searchBtn.click();
+        }
+      });
     }
-  });
+  }, 100);
+});
+
+// Allow pressing Enter in the username input to trigger search
+document.body.addEventListener("keydown", function (e) {
+  const riotIdInput = document.getElementById("riotId");
+  if (
+    riotIdInput &&
+    document.activeElement === riotIdInput &&
+    (e.key === "Enter" || e.keyCode === 13)
+  ) {
+    const searchBtn = document.getElementById("searchBtn") || document.querySelector("button[onclick='fetchMatchStats()']");
+    if (searchBtn) searchBtn.click();
+  }
 });
 
 // == Home‐page logic ==
