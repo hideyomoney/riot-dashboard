@@ -292,6 +292,12 @@ app.use(
   express.static(path.join(__dirname, "client/assets/data"))
 );
 
+// Serve champion.json and other champion files
+app.use(
+  "/champions",
+  express.static(path.join(__dirname, "client/assets/champions"))
+);
+
 // connect to MongoDB, then start Express
 async function startServer() {
   try {

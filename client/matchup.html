@@ -17,6 +17,9 @@
         .then(r => r.text())
         .then(html => {
           document.getElementById("predictPanel").innerHTML = html;
+          if (typeof populateChampionDropdowns === 'function') {
+            populateChampionDropdowns();
+          }
         })
         .catch(err => console.error("Error loading predict.html:", err));
     </script>

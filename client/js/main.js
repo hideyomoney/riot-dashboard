@@ -379,6 +379,35 @@ function displayRankedInfo(ranks) {
     `;
   }
 }
+
+// Dynamically populate champion dropdowns in predict.html
+async function populateChampionDropdowns() {
+  try {
+    const res = await fetch('/champions/champion.json');
+    if (!res.ok) throw new Error("Failed to load champion list");
+    const champions = await res.json();
+
+    const champA = document.getElementById("championA");
+    const champB = document.getElementById("championB");
+
+    if (!champA || !champB) return;
+
+    champions.forEach(name => {
+      const optionA = document.createElement("option");
+      optionA.value = name;
+      optionA.textContent = name;
+      champA.appendChild(optionA);
+
+      const optionB = document.createElement("option");
+      optionB.value = name;
+      optionB.textContent = name;
+      champB.appendChild(optionB);
+    });
+  } catch (err) {
+    console.error("❌ Could not populate champion dropdowns:", err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Attach Matchup Info button handler after header is loaded
   const headerInterval = setInterval(() => {
