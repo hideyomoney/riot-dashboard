@@ -3,9 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <title>LOLSpect Home</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+  <!-- Auth section -->
+  <div id="authControls" style="text-align:right; margin:1rem 2rem 0 0; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+    <button id="loginBtn" class="btn" style="width: 120px;">Log In</button>
+    <button id="homeMatchupBtn" style="width: 120px;">Matchup Info</button>
+    <span id="userInfo" class="user-info" style="display: none;">
+      <button id="logoutBtn" class="btn" style="width: 120px;">Log Out</button>
+    </span>
+  </div>
+
   <div class="home-container">
     <h1>LOLSpect</h1>
 
@@ -17,11 +26,33 @@
       />
       <button id="homeSearchBtn">Search</button>
     </div>
-
-    <button id="homeMatchupBtn">Matchup Info</button>
   </div>
 
   <!-- Include main.js (with defer) instead of inline script -->
-  <script src="js/main.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginBtn = document.getElementById('loginBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const userInfo = document.getElementById('userInfo');
+      const token = localStorage.getItem('jwtToken');
+      const email = localStorage.getItem('userEmail');
+      if (token && email) {
+        loginBtn.style.display = 'none';
+        userInfo.style.display = 'inline-block';
+        logoutBtn.onclick = () => {
+          localStorage.removeItem('jwtToken');
+          localStorage.removeItem('userEmail');
+          window.location.reload();
+        };
+      } else {
+        loginBtn.style.display = 'inline-block';
+        userInfo.style.display = 'none';
+        loginBtn.onclick = () => {
+          window.location.href = '/login.html';
+        };
+      }
+    });
+  </script>
 </body>
 </html>

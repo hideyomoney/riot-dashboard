@@ -7,6 +7,9 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const { MongoClient } = require('mongodb');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 
 dotenv.config();
@@ -23,11 +26,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(clientPath, 'index.html'));
 });
 
-const { MongoClient } = require('mongodb');
-
 const uri = process.env.MONGO_URI; // Store your MongoDB URI in .env
 const client = new MongoClient(uri);
 let db;
+
+function usersCollection() {
+  return db.collection('users');
+}
 
 // Add champion name mapping for database normalization
 const champNameMap = {
@@ -298,20 +303,73 @@ app.use(
   express.static(path.join(__dirname, "client/assets/champions"))
 );
 
+// User signup
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { email, pw } = req.body;
+    if (!email || !pw || pw.length < 8) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    const users = usersCollection();
+    const existing = await users.findOne({ email });
+    if (existing) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+    const passwordHash = await bcrypt.hash(pw, 10);
+    const user = {
+      email,
+      passwordHash,
+      createdAt: new Date()
+    };
+    const result = await users.insertOne(user);
+    const token = jwt.sign(
+      { email, id: result.insertedId },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '3m' }
+    );
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ error: 'Signup failed' });
+  }
+});
+
+// User login
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, pw } = req.body;
+    if (!email || !pw) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    const users = usersCollection();
+    const user = await users.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    const match = await bcrypt.compare(pw, user.passwordHash);
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    const token = jwt.sign(
+      { email, id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '3m' }
+    );
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
 // connect to MongoDB, then start Express
-async function startServer() {
+async function start() {
   try {
     await client.connect();
-    db = client.db('LoLmatchups'); // ✅ must match actual DB name
-    console.log('✅ Connected to MongoDB');
-    //console.log('✅ Using DB:', db.databaseName); // Log the DB name
-//console.log(` About to listen on port ${PORT}`);
-
-    app.listen(PORT);
+    db = client.db('LoLmatchups');
+    await db.collection('users').createIndex({ email: 1 }, { unique: true });
+    app.listen(PORT, () => console.log(`🟢 Server on ${PORT}`));
   } catch (err) {
-    console.error(' MongoDB connection failed:', err.message);
+    console.error('Failed to connect to MongoDB', err);
     process.exit(1);
   }
 }
-
-startServer();
+start();

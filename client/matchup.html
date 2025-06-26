@@ -3,11 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <title>Matchup Info - LOLSpect</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
+    <div id="header-placeholder"></div>
+    <script>
+      fetch('partials/header.html')
+        .then(r=>r.text()).then(html=>{
+          document.querySelector('#header-placeholder').innerHTML = html;
+          const s = document.createElement('script');
+          s.src = 'js/header.js'; s.defer = true;
+          s.onload = ()=> initializeHeader();
+          document.head.appendChild(s);
+        });
+    </script>
     <div style="padding: 20px;">
-      <a href="index.html" style="color: #3b82f6; text-decoration: none; font-weight: bold;">&larr; Back to Dashboard</a>
+      <a href="/index.html" style="color: #3b82f6; text-decoration: none; font-weight: bold;">&larr; Back to Dashboard</a>
       <h2>Predict Matchup Winrate</h2>
       <div id="predictPanel"></div>
     </div>
@@ -23,6 +34,6 @@
         })
         .catch(err => console.error("Error loading predict.html:", err));
     </script>
-    <script src="js/main.js" defer></script>
+    <script src="/js/main.js" defer></script>
   </body>
 </html>

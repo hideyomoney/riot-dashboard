@@ -1,33 +1,37 @@
 <!-- client/partials/header.html -->
-<h1>LOLSpect</h1>
-<button id="matchupInfoBtn" style="margin-bottom:10px;float:right;">Matchup Info</button>
-<select id="gameModeSelect">
-  <option value="">All Modes</option>
-  <option value="CLASSIC">Normal</option>
-  <option value="RANKED_SOLO_5x5">Ranked</option>
-  <option value="RANKED_FLEX_SR">Flex Ranked</option>
-  <option value="ARAM">ARAM</option>
-</select>
+<header>
+  <h1>LOLSpect</h1>
 
-<input
-  type="number"
-  id="gameCount"
-  placeholder="Number of Games"
-  min="1"
-  max="50"
-  value="20"
-/>
+  <select id="gameModeSelect">
+    <option value="">All Modes</option>
+    <option value="CLASSIC">Normal</option>
+    <option value="RANKED_SOLO_5x5">Ranked</option>
+    <option value="RANKED_FLEX_SR">Flex Ranked</option>
+    <option value="ARAM">ARAM</option>
+  </select>
 
-<input id="riotId" placeholder="Enter Riot ID (e.g. lolarmon1#NA1)" />
-<button onclick="fetchMatchStats()" id="searchBtn">Search</button>
-<script>
-  // Add navigation for the Matchup Info button
-  window.addEventListener('DOMContentLoaded', function() {
-    var btn = document.getElementById('matchupInfoBtn');
-    if (btn) {
-      btn.onclick = function() {
-        window.location.href = 'matchup.html';
-      };
-    }
-  });
-</script>
+  <input
+    type="number"
+    id="gameCount"
+    placeholder="Number of Games"
+    min="1"
+    max="50"
+    value="20"
+  />
+
+  <input id="riotId" placeholder="Enter Riot ID (e.g. lolarmon1#NA1)" />
+  <button onclick="fetchMatchStats()" id="searchBtn">Search</button>
+
+  <div class="auth-controls">
+    <!-- LOGIN BUTTON (only if not authenticated) -->
+    <button id="loginBtn" class="btn" style="width: 120px;">Log In</button>
+
+    <!-- USER INFO (only if authenticated) -->
+    <span id="userInfo" class="user-info" style="display: none;">
+      <button id="logoutBtn" class="btn" style="width: 120px;">Log Out</button>
+    </span>
+
+    <!-- Only show this button if not on matchup.html -->
+    <button id="matchupInfoBtn" class="btn" style="display:none; margin-top: 0.5rem; font-size: 1rem; padding: 0.5rem 1rem; border: none; border-radius: 4px; background-color: #3b82f6; color: #fff; cursor: pointer; font-weight: 500;">Matchup Info</button>
+  </div>
+</header>
