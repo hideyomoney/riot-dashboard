@@ -290,7 +290,14 @@ header h1 {
 .auth-controls {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
+  gap: 0.1rem;
   margin-left: auto;
+}
+
+
+/* Use .btn for all major action buttons, including header and home page */
+#loginBtn,
+#logoutBtn,
+#matchupInfoBtn {
+  width: 100%;
 }
