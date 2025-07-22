@@ -5,7 +5,7 @@ function initializeHeader() {
     matchupBtn.style.display = 'none';
   } else {
     matchupBtn.style.display = 'inline-block';
-    matchupBtn.onclick = ()=> window.location.href = '/client/matchup.html';
+    matchupBtn.onclick = ()=> window.location.href = '/matchup.html';
   }
 
   const loginBtn = document.getElementById('loginBtn'),
